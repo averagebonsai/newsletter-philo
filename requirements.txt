@@ -1,0 +1,9 @@
+openai
+google-genai
+sqlalchemy
+psycopg2-binary
+python-dotenv
+requests
+resend
+pytest
+pytest-mock

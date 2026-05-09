@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from openai import OpenAI
 from google import genai
+import resend
 
 load_dotenv()
 
@@ -39,4 +40,13 @@ def get_gemini_client():
         return client 
     except Exception as e: 
         print(f"Error getting gemini client: {e}")
+        return None
+
+def get_resend_client():
+    try:
+        resend_api_key = os.getenv("RESEND_API_KEY")
+        resend.api_key = resend_api_key
+        return resend
+    except Exception as e:
+        print(f"Error getting resend client: {e}")
         return None

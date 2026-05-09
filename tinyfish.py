@@ -1,4 +1,6 @@
 import json
+import os
+import time
 import requests
 from model_utils import get_tinyfish_client
 
@@ -25,7 +27,7 @@ def get_tinyfish_news():
         run_id, error = response_json.get("run_id"), response_json.get("error")
         
         if error != None:
-            print("There was an error in getting a response: {error}")
+            print(f"There was an error in getting a response: {error}")
             return None
         else: 
             print("Waiting for results...")
@@ -42,6 +44,18 @@ def get_tinyfish_news():
                 else: 
                     print(f"Task not finished.")
                     time.sleep(40)
+    except Exception as e:
+        print(f"TinyFish request failed: {e}")
+        return None
+
+def load_fixture_articles(path=None):
+    path = path or os.getenv("FIXTURE_PATH", "stuff.json")
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Unable to load fixture articles from {path}: {e}")
+        return None
 
 if __name__ == "__main__": 
     get_tinyfish_news()
