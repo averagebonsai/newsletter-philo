@@ -7,3 +7,5 @@ requests
 resend
 pytest
 pytest-mock
+neon-cli
+
