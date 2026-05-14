@@ -7,16 +7,16 @@ from sqlalchemy import text
 from backend.model_utils import get_neon_client, get_openai_client, get_gemini_client
 
 chat_model = "gpt-5-nano"
-chat_prompt = "There should be 5 news articles and 2 opinion pieces. Summarise each article into roughly 2 paragraphs or 200 words. Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary."
+chat_prompt = "There should be 3 news articles and 2 opinion pieces. Summarise each article into roughly 1 paragraph (around 100-150 words). Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary."
 gemini_model = "gemini-2.5-flash"
 gemini_prompt = (
-    "There are summaries of 5 news articles and 2 opinion pieces here. For each piece, place it in "
+    "There are summaries of 3 news articles and 2 opinion pieces here. For each piece, place it in "
     "conversation with a relevant political philosopher and historian. Ideally, this should be a response in "
     "support of or against one of the viewpoints raised in the article. Introducing a third, unconsidered "
     "perspective is also good. Do not edit the article summary, but add another paragraph at the end of the "
     "summary detailing what this philosopher or historian might say. This paragraph should be around 150-200 "
-    "words. Briefly raise 1 contention with this viewpoint too. Remove all formatting (bolding, horizontal "
-    "lines). Begin each article with the article's title. Begin your entire response with one line in the exact "
+    "words. Briefly raise 1 contention with this viewpoint too. Begin each article with the article's title. 
+    "Begin your entire response with one line in the exact "
     "form NEWSLETTER TITLE: <a concise 5-10 word title that captures the overarching theme of this issue>. "
     "Then leave one blank line and continue with the articles as instructed. Do not put any other text before "
     "this line."
