@@ -1,20 +1,20 @@
 from datetime import date
 
-import main
+import backend.main as main
 
 
 def _patch_pipeline_internals(mocker):
-    mocker.patch("main.summariser", return_value="summary")
-    mocker.patch("main.philosopher", return_value="NEWSLETTER TITLE: Theme\n\nFinal body")
-    mocker.patch("main.parse_newsletter", return_value=("Theme", "Final body"))
+    mocker.patch("backend.main.summariser", return_value="summary")
+    mocker.patch("backend.main.philosopher", return_value="NEWSLETTER TITLE: Theme\n\nFinal body")
+    mocker.patch("backend.main.parse_newsletter", return_value=("Theme", "Final body"))
 
 
 def test_run_pipeline_prod_calls_all_side_effects(mocker):
-    tinyfish_mock = mocker.patch("main.get_tinyfish_news", return_value="articles")
-    fixture_mock = mocker.patch("main.load_fixture_articles", return_value={"news_articles": []})
+    tinyfish_mock = mocker.patch("backend.main.get_tinyfish_news", return_value="articles")
+    fixture_mock = mocker.patch("backend.main.load_fixture_articles", return_value={"news_articles": []})
     _patch_pipeline_internals(mocker)
-    to_database_mock = mocker.patch("main.to_database", return_value=99)
-    send_emails_mock = mocker.patch("main.send_emails", return_value={"sent": 2, "failed": []})
+    to_database_mock = mocker.patch("backend.main.to_database", return_value=99)
+    send_emails_mock = mocker.patch("backend.main.send_emails", return_value={"sent": 2, "failed": []})
 
     result = main.run_pipeline("prod")
 
@@ -34,13 +34,13 @@ def test_run_pipeline_prod_calls_all_side_effects(mocker):
 
 
 def test_run_pipeline_testing_skips_email(mocker):
-    tinyfish_mock = mocker.patch("main.get_tinyfish_news", return_value="articles")
+    tinyfish_mock = mocker.patch("backend.main.get_tinyfish_news", return_value="articles")
     fixture_mock = mocker.patch(
-        "main.load_fixture_articles", return_value={"news_articles": [{"id": 1}]}
+        "backend.main.load_fixture_articles", return_value={"news_articles": [{"id": 1}]}
     )
     _patch_pipeline_internals(mocker)
-    to_database_mock = mocker.patch("main.to_database", return_value=42)
-    send_emails_mock = mocker.patch("main.send_emails")
+    to_database_mock = mocker.patch("backend.main.to_database", return_value=42)
+    send_emails_mock = mocker.patch("backend.main.send_emails")
 
     result = main.run_pipeline("testing")
 
@@ -56,13 +56,13 @@ def test_run_pipeline_testing_skips_email(mocker):
 
 
 def test_run_pipeline_dryrun_skips_db_and_email(mocker):
-    tinyfish_mock = mocker.patch("main.get_tinyfish_news", return_value="articles")
+    tinyfish_mock = mocker.patch("backend.main.get_tinyfish_news", return_value="articles")
     fixture_mock = mocker.patch(
-        "main.load_fixture_articles", return_value={"news_articles": [{"id": 1}]}
+        "backend.main.load_fixture_articles", return_value={"news_articles": [{"id": 1}]}
     )
     _patch_pipeline_internals(mocker)
-    to_database_mock = mocker.patch("main.to_database")
-    send_emails_mock = mocker.patch("main.send_emails")
+    to_database_mock = mocker.patch("backend.main.to_database")
+    send_emails_mock = mocker.patch("backend.main.send_emails")
 
     result = main.run_pipeline("dryrun")
 
@@ -77,7 +77,7 @@ def test_run_pipeline_dryrun_skips_db_and_email(mocker):
 
 
 def test_run_pipeline_fails_fast_on_missing_scrape(mocker):
-    mocker.patch("main.get_tinyfish_news", return_value=None)
+    mocker.patch("backend.main.get_tinyfish_news", return_value=None)
 
     result = main.run_pipeline("prod")
 
@@ -87,7 +87,7 @@ def test_run_pipeline_fails_fast_on_missing_scrape(mocker):
 
 
 def test_run_pipeline_fails_fast_on_missing_fixture(mocker):
-    mocker.patch("main.load_fixture_articles", return_value=None)
+    mocker.patch("backend.main.load_fixture_articles", return_value=None)
 
     result = main.run_pipeline("dryrun")
 

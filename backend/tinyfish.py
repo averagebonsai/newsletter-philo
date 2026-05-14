@@ -2,7 +2,7 @@ import json
 import os
 import time
 import requests
-from model_utils import get_tinyfish_client
+from backend.model_utils import get_tinyfish_client
 
 def get_tinyfish_news(): 
     """

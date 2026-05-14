@@ -4,7 +4,7 @@ import re
 
 from sqlalchemy import text
 
-from model_utils import get_neon_client, get_openai_client, get_gemini_client
+from backend.model_utils import get_neon_client, get_openai_client, get_gemini_client
 
 chat_model = "gpt-5-nano"
 chat_prompt = "There should be 5 news articles and 2 opinion pieces. Summarise each article into roughly 2 paragraphs or 200 words. Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary."
@@ -23,20 +23,17 @@ gemini_prompt = (
 )
 
 def summariser(articles):
-    client = get_openai_client()
+    client = get_gemini_client()
     if isinstance(articles, (dict, list)):
         articles_text = json.dumps(articles, ensure_ascii=True)
     else:
         articles_text = str(articles)
     try:
-        response = client.responses.create(
-            model=chat_model,
-            input = [{
-                "role": "user",
-                "content": chat_prompt + "\n\n" + articles_text
-                }]
+        response = client.models.generate_content(
+            model=gemini_model,
+            contents=f"{chat_prompt}\n\n{articles_text}",
         )
-        return response.output_text
+        return response.text
     except Exception as e:
         print(f"Unable to get summary: {e}")
         return None
@@ -73,15 +70,15 @@ def parse_newsletter(text_value):
 def to_database(title, content):
     engine = get_neon_client()
     query = """
-        INSERT INTO newsletters (newsletter_date, title, content)
-        VALUES (:newsletter_date, :title, :content)
+        INSERT INTO newsletters (newsletterdate, title, content)
+        VALUES (:newsletterdate, :title, :content)
         RETURNING id;
     """
     with engine.connect() as connection:
         result = connection.execute(
             text(query),
             {
-                "newsletter_date": date.today(),
+                "newsletterdate": date.today(),
                 "title": title,
                 "content": content,
             },

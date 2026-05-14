@@ -1,6 +1,6 @@
 import os
 
-from model_utils import get_neon_client, get_resend_client
+from backend.model_utils import get_neon_client, get_resend_client
 from sqlalchemy import text
 
 def get_subscribers():

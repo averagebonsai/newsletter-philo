@@ -1,9 +1,9 @@
 import argparse
 from datetime import date
 
-from tinyfish import get_tinyfish_news, load_fixture_articles
-from output import summariser, philosopher, parse_newsletter, to_database
-from mailer import send_emails
+from backend.tinyfish import get_tinyfish_news, load_fixture_articles
+from backend.output import summariser, philosopher, parse_newsletter, to_database
+from backend.mailer import send_emails
 
 
 def run_pipeline(mode):

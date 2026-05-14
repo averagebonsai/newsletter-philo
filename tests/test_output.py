@@ -1,25 +1,25 @@
 from datetime import date
 
-import output
+import backend.output as output
 
 
 def test_summariser_success(mocker):
     fake_client = mocker.Mock()
-    fake_response = mocker.Mock(output_text="summary text")
-    fake_client.responses.create.return_value = fake_response
-    mocker.patch("output.get_openai_client", return_value=fake_client)
+    fake_response = mocker.Mock(text="summary text")
+    fake_client.models.generate_content.return_value = fake_response
+    mocker.patch("backend.output.get_gemini_client", return_value=fake_client)
 
     result = output.summariser("raw articles")
 
     assert result == "summary text"
-    fake_client.responses.create.assert_called_once()
+    fake_client.models.generate_content.assert_called_once()
 
 
 def test_philosopher_success(mocker):
     fake_client = mocker.Mock()
     fake_response = mocker.Mock(text="NEWSLETTER TITLE: A title\n\nBody")
     fake_client.models.generate_content.return_value = fake_response
-    mocker.patch("output.get_gemini_client", return_value=fake_client)
+    mocker.patch("backend.output.get_gemini_client", return_value=fake_client)
 
     result = output.philosopher("summary")
 
@@ -55,7 +55,7 @@ def test_to_database_inserts_and_commits(mocker):
     fake_connection.execute.return_value = fake_result
 
     fake_engine = mocker.MagicMock()
-    mocker.patch("output.get_neon_client", return_value=fake_engine)
+    mocker.patch("backend.output.get_neon_client", return_value=fake_engine)
     engine = output.get_neon_client()
     engine.connect.return_value.__enter__.return_value = fake_connection
     engine.connect.return_value.__exit__.return_value = None
