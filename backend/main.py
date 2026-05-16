@@ -2,11 +2,11 @@ import argparse
 from datetime import date
 
 from backend.tinyfish import get_tinyfish_news, load_fixture_articles
-from backend.output import summariser, philosopher, parse_newsletter, to_database
+from backend.output import summariser, philosopher, parse_newsletter, to_database, generate_preview
 from backend.mailer import send_emails
 
 
-def run_pipeline(mode):
+def run_pipeline(mode, preview=False):
     run_result = {"status": "failed", "step": None, "title": None, "mode": mode}
 
     if mode == "prod":
@@ -41,6 +41,10 @@ def run_pipeline(mode):
         return run_result
 
     full_title = f"{date.today().isoformat()} - {llm_title}"
+
+    if preview:
+        preview_path = generate_preview(full_title, body)
+        print(f"Preview generated at: {preview_path}")
 
     newsletter_id = None
     if mode in ("prod", "testing"):
@@ -89,5 +93,10 @@ if __name__ == "__main__":
             "dryrun: fixture + LLMs only, no DB, no email."
         ),
     )
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        help="Generate an HTML preview of the newsletter.",
+    )
     args = parser.parse_args()
-    print(run_pipeline(args.mode))
+    print(run_pipeline(args.mode, args.preview))

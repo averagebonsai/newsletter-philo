@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Trouillot's Crystal Ball",
+  title: "Horizon",
   description: "A newsletter blending current affairs with history and political philosophy.",
 };
 

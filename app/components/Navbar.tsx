@@ -14,11 +14,8 @@ export default function Navbar() {
     >
       <Link href="/" style={{ textDecoration: "none", color: "white" }}>
         <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
-          <span style={{ fontSize: "1.2rem", fontWeight: "bold", letterSpacing: "1px" }}>
-            TROUILLOT'S
-          </span>
-          <span style={{ fontSize: "0.8rem", textTransform: "uppercase", opacity: "0.8" }}>
-            Crystal Ball
+          <span style={{ fontSize: "1.5rem", fontWeight: "bold", letterSpacing: "2px" }}>
+            HORIZON
           </span>
         </div>
       </Link>
@@ -26,7 +23,7 @@ export default function Navbar() {
         <Link href="/archive" style={{ color: "white", textDecoration: "none", fontSize: "0.9rem", fontWeight: "500" }}>
           Article Repository
         </Link>
-        <Link href="#" style={{ color: "white", textDecoration: "none", fontSize: "0.9rem", fontWeight: "500" }}>
+        <Link href="/about" style={{ color: "white", textDecoration: "none", fontSize: "0.9rem", fontWeight: "500" }}>
           About
         </Link>
       </div>

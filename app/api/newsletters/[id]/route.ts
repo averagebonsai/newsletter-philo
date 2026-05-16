@@ -23,7 +23,11 @@ export async function GET(
       return NextResponse.json({ error: "Newsletter not found" }, { status: 404 });
     }
 
-    return NextResponse.json(newsletters[0]);
+    return NextResponse.json(newsletters[0], {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      }
+    });
   } catch (error) {
     console.error("Fetch newsletter error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

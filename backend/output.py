@@ -1,25 +1,36 @@
 from datetime import date
 import json
 import re
+import os
 
 from sqlalchemy import text
 
 from backend.model_utils import get_neon_client, get_openai_client, get_gemini_client
 
 chat_model = "gpt-5-nano"
-chat_prompt = "There should be 3 news articles and 2 opinion pieces. Summarise each article into roughly 1 paragraph (around 100-150 words). Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary."
+chat_prompt = (
+    "There should be 3 news articles and 2 opinion pieces. Summarise each article into roughly 1 paragraph (around 100-150 words). "
+    "Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary. "
+    "For opinion articles, also include the publisher after the title in brackets."
+    )
+
 gemini_model = "gemini-2.5-flash"
 gemini_prompt = (
-    "There are summaries of 3 news articles and 2 opinion pieces here. For each piece, place it in "
-    "conversation with a relevant political philosopher and historian. Ideally, this should be a response in "
-    "support of or against one of the viewpoints raised in the article. Introducing a third, unconsidered "
-    "perspective is also good. Do not edit the article summary, but add another paragraph at the end of the "
-    "summary detailing what this philosopher or historian might say. This paragraph should be around 150-200 "
-    "words. Briefly raise 1 contention with this viewpoint too. Begin each article with the article's title. 
+    "There are summaries of 3 news articles and 2 opinion pieces here. Do not edit the article summaries. "
+    "For each piece, have 1 relevant political philosopher or historian critically assess the developments mentioned in the article. "
+    "The philosopher or historian should have a different perspective on the developments mentioned in the article. "
+    "Do not edit the article summary, but add another paragraph about 200 words long at the end of the summary detailing what this philosopher or historian might say."
+    "Here are some things the philosopher/historian may do, drawing from his/her own theories: " 
+    "1. Comment on whether the observation/opinion is universal/generalisable. "
+    "2. Add a wrinkle or a qualifier to the development/opinion. "
+    "3. Identify a hidden risk, consequence or opportunity, drawing from his/her own frameworks. "
+    "4. Draw a parallel to an analogous situation in history, or reference a famous, relevant thought experiment. "
+    "5. Identify the hidden reason behind an observation, or assumption beneath an opinion."
+    "Avoid generic agreeements or disagreements when assessing the article. Novel insights must be drawn."
+    "Begin each article with the article's title wrapped in bold tags (e.g., <b>News Article X: <Title> </b>). "
     "Begin your entire response with one line in the exact "
     "form NEWSLETTER TITLE: <a concise 5-10 word title that captures the overarching theme of this issue>. "
-    "Then leave one blank line and continue with the articles as instructed. Do not put any other text before "
-    "this line."
+    "Then leave one blank line and continue with the articles as instructed. Do not put any other text before this line."
 )
 
 def summariser(articles):
@@ -86,6 +97,79 @@ def to_database(title, content):
         newsletter_id = result.scalar_one()
         connection.commit()
     return newsletter_id
+
+def generate_preview(title, content):
+    """Generates an HTML preview of the newsletter that matches the website's styling."""
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Newsletter Preview: {title}</title>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                background-color: #fff;
+                color: #000;
+                margin: 0;
+                padding: 0;
+                line-height: 1.8;
+            }}
+            article {{
+                padding: 4rem 2rem;
+                max-width: 800px;
+                margin: 0 auto;
+            }}
+            header {{
+                margin-bottom: 3rem;
+                border-bottom: 1px solid #2c2c2c;
+                padding-bottom: 2rem;
+            }}
+            .date {{
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                opacity: 0.6;
+            }}
+            h1 {{
+                font-size: 3rem;
+                margin: 1rem 0;
+                font-weight: normal;
+                line-height: 1.2;
+            }}
+            .content {{
+                font-size: 1.1rem;
+                white-space: pre-wrap;
+            }}
+        </style>
+    </head>
+    <body>
+        <article>
+            <header>
+                <span class="date">{date_str}</span>
+                <h1>{title}</h1>
+            </header>
+            <div class="content">{content_html}</div>
+        </article>
+    </body>
+    </html>
+    """
+    
+    content_html = content.replace('\\n', '<br />')
+    # If the text has actual newline characters as well
+    content_html = content_html.replace('\n', '<br />')
+    
+    date_str = date.today().strftime('%B %d, %Y')
+    full_html = html_template.format(
+        title=title,
+        date_str=date_str,
+        content_html=content_html
+    )
+    
+    with open("newsletter_preview.html", "w") as f:
+        f.write(full_html)
+    
+    return os.path.abspath("newsletter_preview.html")
 
 if __name__ == "__main__":
     print("Run `python main.py` to execute the full pipeline.")

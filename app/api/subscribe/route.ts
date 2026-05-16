@@ -20,11 +20,19 @@ export async function POST(request: Request) {
 
     const sql = neon(databaseUrl);
 
+    // Check if the email already exists to return a specific error message
+    const existing = await sql`
+      SELECT 1 FROM subscribers WHERE email = ${sanitizedEmail}
+    `;
+
+    if (existing.length > 0) {
+      return NextResponse.json({ error: "Already subscribed." }, { status: 400 });
+    }
+
     // The tagged template literal automatically parameterizes the values, preventing SQL injection.
     await sql`
       INSERT INTO subscribers (email, is_subscribed)
       VALUES (${sanitizedEmail}, TRUE)
-      ON CONFLICT (email) DO UPDATE SET is_subscribed = TRUE;
     `;
 
     return NextResponse.json({ ok: true });

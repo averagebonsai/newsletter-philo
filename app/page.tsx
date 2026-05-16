@@ -7,9 +7,12 @@ export default function NewsletterPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [email, setEmail] = useState<string>("");
 
+  const [errorMsg, setErrorMsg] = useState<string>("");
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
+    setErrorMsg("");
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -18,12 +21,21 @@ export default function NewsletterPage() {
         body: JSON.stringify({ email }),
       });
 
-      if (!response.ok) throw new Error("Subscription failed");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Subscription failed");
+      }
+
       setStatus("success");
       setEmail("");
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      if (status !== "loading") { // Basic check to see if we're in a valid state
+         // If it's a known error from our API, maybe just warn or log normally
+      }
+      console.warn("Subscription notice:", e.message);
       setStatus("error");
+      setErrorMsg(e.message || "Something went wrong. Please try again.");
     }
   }
 
@@ -125,7 +137,7 @@ export default function NewsletterPage() {
 
           {status === "error" && (
             <p style={{ color: "#d32f2f", marginTop: "1rem" }}>
-              Something went wrong. Please try again.
+              {errorMsg}
             </p>
           )}
         </div>

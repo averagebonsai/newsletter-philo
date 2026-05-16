@@ -56,6 +56,9 @@ pip install -r requirements.txt
 # Run the pipeline
 # Modes: prod (live), testing (fixture + DB), dryrun (fixture + LLM only)
 python -m backend.main --mode dryrun
+
+# Generate a visual preview (creates newsletter_preview.html)
+python -m backend.main --mode dryrun --preview
 ```
 
 *Note: The GitHub Action is configured to run `python main.py --mode prod`. Ensure the execution context (PYTHONPATH) is set correctly if running from root.*
@@ -65,6 +68,9 @@ python -m backend.main --mode dryrun
 ```bash
 # Run backend tests
 pytest
+
+# Run visual rendering tests
+PYTHONPATH=. pytest tests/test_visual_logic.py
 ```
 
 ## Development Conventions

@@ -9,6 +9,19 @@ def get_tinyfish_news():
     note: using requests instead of tinyfish library because the SDK is still minimal.
     also using single agent (instead of 2) because they don't share context, need articles to not overlap.
     """
+    cache_file = "tinyfish_cache.json"
+    cache_ttl = 24 * 60 * 60 # 24 hours
+    
+    if os.path.exists(cache_file):
+        file_age = time.time() - os.path.getmtime(cache_file)
+        if file_age < cache_ttl:
+            try:
+                with open(cache_file, "r") as f:
+                    print("Loading articles from TinyFish cache...")
+                    return json.load(f)
+            except Exception as e:
+                print(f"Failed to load cache: {e}")
+
     try: 
         tinyfish_api_key = get_tinyfish_client()
         url = 'https://agent.tinyfish.ai/v1/automation/run-async'
@@ -37,7 +50,14 @@ def get_tinyfish_news():
                 status = status_check.get('status')
                 if status == "COMPLETED": 
                     print("Successfully retrieved articles.")
-                    return status_check.get('result')
+                    result = status_check.get('result')
+                    # Save to cache
+                    try:
+                        with open(cache_file, "w") as f:
+                            json.dump(result, f)
+                    except Exception as e:
+                        print(f"Failed to save cache: {e}")
+                    return result
                 elif status == "FAILED": 
                     print(f"TinyFish failed to obtain news articles: {status_check.get('error').get('message')}")
                     return None 
