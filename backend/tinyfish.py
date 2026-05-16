@@ -32,7 +32,7 @@ def get_tinyfish_news():
 
         payload = {
             'url': "https://example.com/task", 
-            'goal': "Scrape the most pressing 3 articles and 2 opinion pieces from the last week from CNA, Al Jazeera, CNN and AP. I should only have 7 articles in total. Make sure that the topics do not overlap. Do not summarise the articles, but return the full article text."
+            'goal': "Scrape the most pressing 2 articles and 1 opinion pieces from the last week from CNA, Al Jazeera, CNN and AP. I should only have 3 articles in total. Make sure that the topics do not overlap. Do not summarise the articles, but return the full article text."
         }
 
         response = requests.post(url, json=payload, headers=headers) #should get run_id and error

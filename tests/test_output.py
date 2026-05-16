@@ -68,5 +68,18 @@ def test_to_database_inserts_and_commits(mocker):
     params = args[1]
     assert params["title"] == "2026-05-08 - Title"
     assert params["content"] == "Body"
-    assert params["newsletter_date"] == date.today()
+    assert params["newsletterdate"] == date.today()
     fake_connection.commit.assert_called_once()
+
+
+def test_get_latest_newsletter(mocker):
+    fake_connection = mocker.Mock()
+    fake_connection.execute.return_value.fetchone.return_value = ("Latest Title", "Latest Content")
+    fake_engine = mocker.MagicMock()
+    fake_engine.connect.return_value.__enter__.return_value = fake_connection
+    mocker.patch("backend.output.get_neon_client", return_value=fake_engine)
+
+    title, content = output.get_latest_newsletter()
+
+    assert title == "Latest Title"
+    assert content == "Latest Content"

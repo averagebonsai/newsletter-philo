@@ -14,6 +14,19 @@ def test_get_subscribers(mocker):
     assert subscribers == [("a@example.com", "tok1"), ("b@example.com", "tok2")]
 
 
+def test_get_first_subscriber(mocker):
+    fake_connection = mocker.Mock()
+    fake_connection.execute.return_value.fetchone.return_value = ("a@example.com", "tok1")
+    fake_engine = mocker.MagicMock()
+    fake_engine.connect.return_value.__enter__.return_value = fake_connection
+    mocker.patch("backend.mailer.get_neon_client", return_value=fake_engine)
+
+    email, token = mailer.get_first_subscriber()
+
+    assert email == "a@example.com"
+    assert token == "tok1"
+
+
 def test_format_html_contains_content_and_unsub():
     html = mailer.format_html("Title", "Para one.\n\nPara two.", "token-123")
     assert "<h1>Title</h1>" in html

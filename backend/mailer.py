@@ -11,12 +11,30 @@ def get_subscribers():
         subscribers = [(row[0], row[1]) for row in result]
     return subscribers
 
+def get_first_subscriber():
+    engine = get_neon_client()
+    query = "SELECT email, unsub_token FROM subscribers WHERE is_subscribed LIMIT 1;"
+    with engine.connect() as connection:
+        result = connection.execute(text(query))
+        row = result.fetchone()
+        if row:
+            return row[0], row[1]
+    return None, None
+
 def get_mailing_list():
     return [email for email, _ in get_subscribers()]
 
 def format_html(title, content, unsub_token):
+    # Split by double newline for paragraphs
     paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
-    body_html = "".join(f"<p>{paragraph}</p>" for paragraph in paragraphs)
+    
+    # Within each paragraph, replace single newlines with <br /> to preserve 
+    # line breaks between bolded titles and summaries.
+    body_html = ""
+    for paragraph in paragraphs:
+        formatted_p = paragraph.replace("\n", "<br />")
+        body_html += f"<p>{formatted_p}</p>"
+        
     base_url = os.getenv("UNSUBSCRIBE_BASE_URL", "https://example.com").rstrip("/")
     unsubscribe_url = f"{base_url}/unsubscribe?token={unsub_token}"
     return (

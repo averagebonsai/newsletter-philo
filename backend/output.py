@@ -9,14 +9,14 @@ from backend.model_utils import get_neon_client, get_openai_client, get_gemini_c
 
 chat_model = "gpt-5-nano"
 chat_prompt = (
-    "There should be 3 news articles and 2 opinion pieces. Summarise each article into roughly 1 paragraph (around 100-150 words). "
+    "There should be 2 news articles and 1 opinion piece. Summarise each article into roughly 1 paragraph (around 100-150 words). "
     "Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary. "
     "For opinion articles, also include the publisher after the title in brackets."
     )
 
 gemini_model = "gemini-2.5-flash"
 gemini_prompt = (
-    "There are summaries of 3 news articles and 2 opinion pieces here. Do not edit the article summaries. "
+    "There are summaries of 2 news articles and 1 opinion piece here. Do not edit the article summaries. "
     "For each piece, have 1 relevant political philosopher or historian critically assess the developments mentioned in the article. "
     "The philosopher or historian should have a different perspective on the developments mentioned in the article. "
     "Do not edit the article summary, but add another paragraph about 200 words long at the end of the summary detailing what this philosopher or historian might say."
@@ -27,7 +27,8 @@ gemini_prompt = (
     "4. Draw a parallel to an analogous situation in history, or reference a famous, relevant thought experiment. "
     "5. Identify the hidden reason behind an observation, or assumption beneath an opinion."
     "Avoid generic agreeements or disagreements when assessing the article. Novel insights must be drawn."
-    "Begin each article with the article's title wrapped in bold tags (e.g., <b>News Article X: <Title> </b>). "
+    "At the end of each article and analysis, draw a horizontal line."
+    "Begin each article with the article's title wrapped in bold tags, in the following example format: <b>News Article 2: <Title> </b>. "
     "Begin your entire response with one line in the exact "
     "form NEWSLETTER TITLE: <a concise 5-10 word title that captures the overarching theme of this issue>. "
     "Then leave one blank line and continue with the articles as instructed. Do not put any other text before this line."
@@ -97,6 +98,16 @@ def to_database(title, content):
         newsletter_id = result.scalar_one()
         connection.commit()
     return newsletter_id
+
+def get_latest_newsletter():
+    engine = get_neon_client()
+    query = "SELECT title, content FROM newsletters ORDER BY newsletterdate DESC, id DESC LIMIT 1;"
+    with engine.connect() as connection:
+        result = connection.execute(text(query))
+        row = result.fetchone()
+        if row:
+            return row[0], row[1]
+    return None, None
 
 def generate_preview(title, content):
     """Generates an HTML preview of the newsletter that matches the website's styling."""
