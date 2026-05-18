@@ -24,6 +24,19 @@ def test_generate_preview_creates_file():
     # Cleanup
     os.remove(path)
 
+def test_generate_preview_markdown_bolding():
+    title = "Markdown Test"
+    content = "**Bold Title**\nNormal text.\n**Another Bold**"
+    path = generate_preview(title, content)
+    
+    with open(path, "r") as f:
+        html = f.read()
+        assert "<b>Bold Title</b>" in html
+        assert "<b>Another Bold</b>" in html
+        assert "**" not in html
+        
+    os.remove(path)
+
 def test_generate_preview_styling_exists():
     path = generate_preview("Styles", "Content")
     with open(path, "r") as f:

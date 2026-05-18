@@ -11,7 +11,8 @@ chat_model = "gpt-5-nano"
 chat_prompt = (
     "There should be 2 news articles and 1 opinion piece. Summarise each article into roughly 1 paragraph (around 100-150 words). "
     "Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary. "
-    "For opinion articles, also include the publisher after the title in brackets."
+    "Begin each article with the article's title wrapped in bold tags in the following format: <b>Article Title </b>. "
+    "For opinion articles, also include the publisher after the title in brackets, in the format: <b>Opinion: <Title> (<Publisher>) </b>"
     )
 
 gemini_model = "gemini-2.5-flash"
@@ -27,8 +28,8 @@ gemini_prompt = (
     "4. Draw a parallel to an analogous situation in history, or reference a famous, relevant thought experiment. "
     "5. Identify the hidden reason behind an observation, or assumption beneath an opinion."
     "Avoid generic agreeements or disagreements when assessing the article. Novel insights must be drawn."
-    "At the end of each article and analysis, draw a horizontal line."
-    "Begin each article with the article's title wrapped in bold tags, in the following example format: <b>News Article 2: <Title> </b>. "
+    "At the end of each article and analysis, draw a horizontal line using <hr />."
+    "Begin each article with the article's title wrapped in bold tags in the following format: <b> Article Title </b>. Do NOT use markdown bolding like **Title**."
     "Begin your entire response with one line in the exact "
     "form NEWSLETTER TITLE: <a concise 5-10 word title that captures the overarching theme of this issue>. "
     "Then leave one blank line and continue with the articles as instructed. Do not put any other text before this line."
