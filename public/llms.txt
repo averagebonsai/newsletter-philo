@@ -1,0 +1,25 @@
+# Horizon: Philosophy Newsletter Automation
+
+A newsletter blending current affairs with history and political philosophy.
+
+## Description
+Horizon is a modular application that automates the creation and delivery of a philosophical newsletter. It scrapes news articles, summarizes them, and provides philosophical analysis using advanced LLMs (GPT-4o and Gemini 1.5 Pro).
+
+## Core Features
+- **Automated Newsletter Pipeline:** Scrapes news from sources like CNA, AP, CNN, and Al Jazeera.
+- **Philosophical Analysis:** Applies historical and philosophical frameworks to current events.
+- **Subscriber Management:** Simple interface for subscribing to the newsletter.
+- **Archive:** Browse previous editions of the newsletter.
+
+## Site Roadmap
+- **Home (/)**: The landing page and primary subscription interface where users can sign up for the newsletter.
+- **Archive (/archive)**: A repository of past newsletter editions, providing historical access to philosophical analyses.
+- **Archive Details (/archive/[id])**: Individual pages for each archived newsletter, containing the full text and analysis.
+- **About (/about)**: Explains the rationale behind Horizon, the project's goals, and the methodology of combining current events with philosophical frameworks.
+- **Unsubscribe (/unsubscribe)**: A dedicated page for users to manage their subscription status.
+
+## Technical Stack
+- **Frontend:** Next.js (App Router), TypeScript, React.
+- **Backend:** Python 3.12.
+- **Database:** Neon (PostgreSQL).
+- **Email:** Resend integration.

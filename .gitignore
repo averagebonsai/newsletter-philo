@@ -39,5 +39,7 @@ out/
 # Vercel local project link (optional)
 .vercel/
 
+stuff.json
+tinyfish_cache.json
 # Do not blanket-ignore *.json — manifests like package.json must be tracked.
 # Put secrets in .env (already ignored above), not committed JSON.
