@@ -50,3 +50,8 @@ def test_send_emails_success_and_partial_failure(mocker):
     assert len(result["failed"]) == 1
     assert result["failed"][0]["email"] == "bad@example.com"
     assert fake_client.Emails.send.call_count == 2
+    
+    # Check that headers include List-Unsubscribe
+    args, _ = fake_client.Emails.send.call_args_list[0]
+    assert "List-Unsubscribe" in args[0]["headers"]
+    assert "token=tok1" in args[0]["headers"]["List-Unsubscribe"]

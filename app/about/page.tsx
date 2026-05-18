@@ -34,6 +34,7 @@ export default function AboutPage() {
           </p>
 
           <div style={{ marginTop: "3rem", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "2rem", fontStyle: "italic", opacity: "0.8" }}>
+            <p style={{ margin: 0 }}>Cheers,</p>
             <p style={{ margin: 0 }}>Timotheus</p>
             <p style={{ margin: 0, fontSize: "0.9rem" }}>15/5/2026</p>
           </div>

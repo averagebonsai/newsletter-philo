@@ -20,19 +20,17 @@ export async function POST(request: Request) {
 
     const sql = neon(databaseUrl);
 
-    // Check if the email already exists to return a specific error message
-    const existing = await sql`
-      SELECT 1 FROM subscribers WHERE email = ${sanitizedEmail}
-    `;
-
-    if (existing.length > 0) {
-      return NextResponse.json({ error: "Already subscribed." }, { status: 400 });
-    }
+    const unsubToken = crypto.randomUUID();
 
     // The tagged template literal automatically parameterizes the values, preventing SQL injection.
+    // We use ON CONFLICT to handle re-subscriptions: if the email exists, we set is_subscribed to TRUE.
     await sql`
-      INSERT INTO subscribers (email, is_subscribed)
-      VALUES (${sanitizedEmail}, TRUE)
+      INSERT INTO subscribers (email, is_subscribed, unsub_token)
+      VALUES (${sanitizedEmail}, TRUE, ${unsubToken}::uuid)
+      ON CONFLICT (email)
+      DO UPDATE SET 
+        is_subscribed = TRUE,
+        unsub_token = EXCLUDED.unsub_token
     `;
 
     return NextResponse.json({ ok: true });

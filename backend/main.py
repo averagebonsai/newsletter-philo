@@ -35,12 +35,17 @@ def run_pipeline(mode, preview=False):
         try:
             client = get_resend_client()
             from_email = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
+            base_url = os.getenv("UNSUBSCRIBE_BASE_URL", "https://example.com").rstrip("/")
+            unsubscribe_url = f"{base_url}/unsubscribe?token={unsub_token}"
             client.Emails.send(
                 {
                     "from": from_email,
                     "to": [email],
                     "subject": title,
                     "html": format_html(title, content, str(unsub_token)),
+                    "headers": {
+                        "List-Unsubscribe": f"<{unsubscribe_url}>"
+                    }
                 }
             )
             return {

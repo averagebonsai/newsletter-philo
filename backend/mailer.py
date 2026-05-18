@@ -49,16 +49,21 @@ def format_html(title, content, unsub_token):
 def send_emails(title, content):
     client = get_resend_client()
     from_email = os.getenv("FROM_EMAIL", "onboarding@resend.dev")
+    base_url = os.getenv("UNSUBSCRIBE_BASE_URL", "https://example.com").rstrip("/")
     send_result = {"sent": 0, "failed": []}
 
     for email, unsub_token in get_subscribers():
         try:
+            unsubscribe_url = f"{base_url}/unsubscribe?token={unsub_token}"
             client.Emails.send(
                 {
                     "from": from_email,
                     "to": [email],
                     "subject": title,
                     "html": format_html(title, content, str(unsub_token)),
+                    "headers": {
+                        "List-Unsubscribe": f"<{unsubscribe_url}>"
+                    }
                 }
             )
             send_result["sent"] += 1
