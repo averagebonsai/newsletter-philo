@@ -1,8 +1,9 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { neon } from "@neondatabase/serverless";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+
+// Revalidate every 1 hour
+export const revalidate = 3600;
 
 interface Newsletter {
   id: number;
@@ -10,34 +11,31 @@ interface Newsletter {
   title: string;
 }
 
-export default function ArchivePage() {
-  const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function getNewsletters() {
+  const databaseUrl = process.env.NEON_DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("Database URL not configured");
+  }
 
-  useEffect(() => {
-    fetch("/api/newsletters")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setNewsletters(data);
-        } else {
-          console.error("Received unexpected data format:", data);
-          setError("The archives are currently inaccessible.");
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch newsletters:", err);
-        setError("Failed to consult the archives.");
-        setLoading(false);
-      });
-  }, []);
+  const sql = neon(databaseUrl);
+  const newsletters = await sql`
+    SELECT id, newsletterdate, title 
+    FROM newsletters 
+    ORDER BY newsletterdate DESC, id DESC;
+  `;
+  return newsletters as Newsletter[];
+}
+
+export default async function ArchivePage() {
+  let newsletters: Newsletter[] = [];
+  let error: string | null = null;
+
+  try {
+    newsletters = await getNewsletters();
+  } catch (err) {
+    console.error("Failed to fetch newsletters:", err);
+    error = "Failed to consult the archives.";
+  }
 
   return (
     <>
@@ -47,9 +45,7 @@ export default function ArchivePage() {
           Article Repository
         </h1>
         
-        {loading ? (
-          <p>Consulting the archives...</p>
-        ) : error ? (
+        {error ? (
           <p style={{ color: "#d32f2f" }}>{error}</p>
         ) : newsletters.length === 0 ? (
           <p>The library is currently empty.</p>
@@ -58,6 +54,7 @@ export default function ArchivePage() {
             {newsletters.map((nl) => (
               <Link key={nl.id} href={`/archive/${nl.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                 <div 
+                  className="archive-item"
                   style={{ 
                     display: "flex", 
                     justifyContent: "space-between", 
@@ -67,14 +64,6 @@ export default function ArchivePage() {
                     backgroundColor: "rgba(255,255,255,0.3)",
                     transition: "transform 0.2s, background-color 0.2s",
                     cursor: "pointer"
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = "translateX(10px)";
-                    e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.5)";
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = "translateX(0)";
-                    e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.3)";
                   }}
                 >
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -90,6 +79,12 @@ export default function ArchivePage() {
           </div>
         )}
       </main>
+      <style>{`
+        .archive-item:hover {
+          transform: translateX(10px);
+          background-color: rgba(255,255,255,0.5) !important;
+        }
+      `}</style>
     </>
   );
 }

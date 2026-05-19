@@ -3,7 +3,7 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Horizon",
-  description: "A newsletter blending current affairs with history and political philosophy.",
+  description: "A newsletter that critiques important developments and opinions of today with the wisdom of prominent historians and philosophers.",
 };
 
 export default function RootLayout({
