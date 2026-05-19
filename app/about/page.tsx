@@ -33,6 +33,11 @@ export default function AboutPage() {
             wiser and maybe even more creative in the way we frame the problems of today.
           </p>
 
+          <p>
+            Note: None of these articles are written by me. I used TinyFish to scrape the articles, and ChatGPT/Gemini
+            to generate the summaries and expert opinions. 
+          </p>
+
           <div style={{ marginTop: "3rem", borderTop: "1px solid rgba(0,0,0,0.1)", paddingTop: "2rem", fontStyle: "italic", opacity: "0.8" }}>
             <p style={{ margin: 0 }}>Cheers,</p>
             <p style={{ margin: 0 }}>Timotheus</p>
