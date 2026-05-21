@@ -22,7 +22,11 @@ A modular full-stack application that automates the creation and delivery of a p
     - `output.py`: LLM summarization and analysis logic.
     - `mailer.py`: Resend email integration.
     - `model_utils.py`: Database and LLM helper functions.
-- `tests/`: Backend test suite using `pytest`.
+- `tests/`: Project test suite.
+    - `playwright/`: Visual and E2E tests using Playwright.
+    - `playwright-report/`: HTML reports from Playwright (gitignored).
+    - `test-results/`: Artifacts from Playwright runs (gitignored).
+    - Backend tests: `test_mailer.py`, `test_main.py`, etc. (using `pytest`).
 - `.github/workflows/`: GitHub Actions configuration.
 
 ## Building and Running

@@ -22,6 +22,8 @@ ENV/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+tests/playwright-report/
+tests/test-results/
 
 # Packaging/build artifacts
 build/
@@ -43,3 +45,5 @@ stuff.json
 tinyfish_cache.json
 # Do not blanket-ignore *.json — manifests like package.json must be tracked.
 # Put secrets in .env (already ignored above), not committed JSON.
+
+*.png
