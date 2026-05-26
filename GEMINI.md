@@ -65,7 +65,7 @@ python -m backend.main --mode dryrun
 python -m backend.main --mode dryrun --preview
 ```
 
-*Note: The GitHub Action is configured to run `python main.py --mode prod`. Ensure the execution context (PYTHONPATH) is set correctly if running from root.*
+*Note: The GitHub Action is configured to run `python -m backend.main --mode prod`. This ensures the execution context is correct from the root directory.*
 
 ### Testing
 
