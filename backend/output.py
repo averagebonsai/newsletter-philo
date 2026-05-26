@@ -184,7 +184,7 @@ def generate_preview(title, content):
     return os.path.abspath("newsletter_preview.html")
 
 if __name__ == "__main__":
-    print("Run `python main.py` to execute the full pipeline.")
+    print("Run `python -m backend.main` to execute the full pipeline.")
 
 
     
