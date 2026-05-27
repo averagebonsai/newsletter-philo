@@ -47,3 +47,4 @@ tinyfish_cache.json
 # Put secrets in .env (already ignored above), not committed JSON.
 
 *.png
+.antigravitycli/
