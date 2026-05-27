@@ -1,9 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { neon } from "@neondatabase/serverless";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
+import { notFound } from "next/navigation";
+
+// Revalidate every 1 hour
+export const revalidate = 3600;
 
 interface Newsletter {
   id: number;
@@ -12,39 +13,41 @@ interface Newsletter {
   content: string;
 }
 
-export default function ArticleView() {
-  const { id } = useParams();
-  const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function getNewsletter(id: string) {
+  const databaseUrl = process.env.NEON_DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("Database URL not configured");
+  }
 
-  useEffect(() => {
-    if (id) {
-      fetch(`/api/newsletters/${id}`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (data && typeof data === 'object' && 'title' in data) {
-            setNewsletter(data);
-          } else {
-            console.error("Received unexpected data format:", data);
-            setError("The article is currently unreadable.");
-          }
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch newsletter:", err);
-          setError("Failed to consult the archives for this entry.");
-          setLoading(false);
-        });
-    }
-  }, [id]);
+  const sql = neon(databaseUrl);
+  const newsletters = await sql`
+    SELECT id, newsletterdate, title, content 
+    FROM newsletters 
+    WHERE id = ${id};
+  `;
 
-  if (loading) return <><Navbar /><main style={{ padding: "3rem" }}>Consulting the archives...</main></>;
+  if (newsletters.length === 0) {
+    return null;
+  }
+
+  return newsletters[0] as Newsletter;
+}
+
+export default async function ArticleView({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  let newsletter: Newsletter | null = null;
+  let error: string | null = null;
+
+  try {
+    newsletter = await getNewsletter(id);
+  } catch (err) {
+    console.error("Failed to fetch newsletter:", err);
+    error = "Failed to consult the archives for this entry.";
+  }
+
+  if (!newsletter && !error) {
+    notFound();
+  }
   
   return (
     <>

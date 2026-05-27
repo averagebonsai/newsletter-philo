@@ -63,7 +63,7 @@ def get_tinyfish_news():
                     return None 
                 else: 
                     print(f"Task not finished.")
-                    time.sleep(40)
+                    time.sleep(200)
     except Exception as e:
         print(f"TinyFish request failed: {e}")
         return None

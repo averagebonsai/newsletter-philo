@@ -1,29 +1,21 @@
 import Link from "next/link";
+import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   return (
-    <nav
-      style={{
-        backgroundColor: "black",
-        color: "white",
-        padding: "1rem 2rem",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <Link href="/" style={{ textDecoration: "none", color: "white" }}>
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
-          <span style={{ fontSize: "1.5rem", fontWeight: "bold", letterSpacing: "2px" }}>
+    <nav className={styles.nav}>
+      <Link href="/" className={styles.logo}>
+        <div className={styles.logoContent}>
+          <span className={styles.logoText}>
             HORIZON
           </span>
         </div>
       </Link>
-      <div style={{ display: "flex", gap: "2rem" }}>
-        <Link href="/archive" style={{ color: "white", textDecoration: "none", fontSize: "0.9rem", fontWeight: "500" }}>
+      <div className={styles.links}>
+        <Link href="/archive" className={styles.link}>
           Article Repository
         </Link>
-        <Link href="/about" style={{ color: "white", textDecoration: "none", fontSize: "0.9rem", fontWeight: "500" }}>
+        <Link href="/about" className={styles.link}>
           About
         </Link>
       </div>

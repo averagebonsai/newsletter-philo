@@ -1,6 +1,6 @@
 # Horizon: Philosophy Newsletter Automation
 
-A newsletter blending current affairs with history and political philosophy.
+A newsletter blending current affairs with history and political philosophy. 
 
 ## Description
 Horizon is a modular application that automates the creation and delivery of a philosophical newsletter. It scrapes news articles, summarizes them, and provides philosophical analysis using advanced LLMs (GPT-4o and Gemini 1.5 Pro).
