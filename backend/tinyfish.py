@@ -24,6 +24,15 @@ def get_tinyfish_news():
 
     try: 
         tinyfish_api_key = get_tinyfish_client()
+        if not tinyfish_api_key:
+            print("Error: TINYFISH_API_KEY is not set in environment variables.")
+            return None
+        
+        # Diagnostic: Check if key is empty or whitespace (without logging the actual key)
+        if len(tinyfish_api_key.strip()) == 0:
+            print("Error: TINYFISH_API_KEY is an empty string.")
+            return None
+
         url = 'https://agent.tinyfish.ai/v1/automation/run-async'
 
         headers = {

@@ -1,6 +1,18 @@
 import { neon } from "@neondatabase/serverless";
 import React from "react";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+  alternates: {
+    canonical: "/unsubscribe",
+  },
+};
+
 export default async function UnsubscribePage({
   searchParams,
 }: {

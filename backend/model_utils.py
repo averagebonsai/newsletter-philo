@@ -1,11 +1,16 @@
 import os 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from openai import OpenAI
 from google import genai
 import resend
 
-load_dotenv()
+# Only load .env if we are not in a CI environment to prevent overriding GitHub Secrets
+if not os.getenv("GITHUB_ACTIONS"):
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass
 
 def get_tinyfish_client():
     try: 
