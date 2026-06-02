@@ -3,6 +3,17 @@ import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import { notFound } from "next/navigation";
 
+import { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  return {
+    alternates: {
+      canonical: `/archive/${id}`,
+    },
+  };
+}
+
 // Revalidate every 1 hour
 export const revalidate = 3600;
 

@@ -3,6 +3,14 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import styles from "./archive.module.css";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/archive",
+  },
+};
+
 // Revalidate every 1 hour
 export const revalidate = 3600;
 

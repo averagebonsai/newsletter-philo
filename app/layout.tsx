@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://philonewsletter.xyz"),
   title: "Horizon",
   description: "A newsletter blending current affairs with history and political philosophy.",
 };
