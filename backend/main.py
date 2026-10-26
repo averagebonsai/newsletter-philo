@@ -5,16 +5,30 @@ from datetime import date
 from backend.tinyfish import get_tinyfish_news, load_fixture_articles
 from backend.output import (
     summariser,
-    philosopher,
     parse_newsletter,
     to_database,
     generate_preview,
     get_latest_newsletter,
 )
 from backend.mailer import send_emails, get_first_subscriber, format_html, get_resend_client
+from backend.storage import Commentary, StorageError, cache_and_persist_commentary
+from backend.run_cache import start_run
 
 
 def run_pipeline(mode, preview=False):
+    run_cache = start_run(mode)
+    result = None
+    try:
+        result = _run_pipeline(mode, preview, run_cache)
+        return result
+    except Exception as exc:
+        result = {"status": "error", "mode": mode, "step": "unhandled", "error": str(exc)}
+        raise
+    finally:
+        run_cache.finish(result or {"status": "error", "mode": mode, "step": "unhandled"})
+
+
+def _run_pipeline(mode, preview, run_cache):
     run_result = {"status": "failed", "step": None, "title": None, "mode": mode}
 
     if mode == "email":
@@ -73,17 +87,15 @@ def run_pipeline(mode, preview=False):
         )
         return run_result
 
-    summary = summariser(articles)
-    if not summary:
-        run_result["step"] = "summarise"
-        run_result["error"] = "Unable to generate article summaries."
+    run_cache.write_json("pipeline-articles.json", articles)
+
+    final_text = summariser(articles)
+    if not final_text:
+        run_result["step"] = "generate"
+        run_result["error"] = "Unable to generate the Gemini newsletter."
         return run_result
 
-    final_text = philosopher(summary)
-    if not final_text:
-        run_result["step"] = "philosopher"
-        run_result["error"] = "Unable to generate philosopher output."
-        return run_result
+    run_cache.write_text("gemini-output.txt", final_text)
 
     llm_title, body = parse_newsletter(final_text)
     if not body.strip():
@@ -92,13 +104,24 @@ def run_pipeline(mode, preview=False):
         return run_result
 
     full_title = f"{date.today().isoformat()} - {llm_title}"
+    run_cache.write_json("newsletter.json", {"title": full_title, "content": body})
 
     if preview:
         preview_path = generate_preview(full_title, body)
         print(f"Preview generated at: {preview_path}")
 
     newsletter_id = None
-    if mode in ("prod", "testing"):
+    if mode == "prod":
+        try:
+            newsletter_id = cache_and_persist_commentary(
+                Commentary(title=full_title, content=body, model="gemini-2.5-flash")
+            )
+        except StorageError as e:
+            run_result["step"] = "cache-critique"
+            run_result["title"] = full_title
+            run_result["error"] = str(e)
+            return run_result
+    elif mode == "testing":
         try:
             newsletter_id = to_database(full_title, body)
         except Exception as e:
