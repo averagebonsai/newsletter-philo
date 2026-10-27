@@ -3,27 +3,15 @@ from datetime import date
 import backend.output as output
 
 
-def test_summariser_success(mocker):
+def test_summariser_generates_combined_newsletter_with_one_gemini_call(mocker):
     fake_client = mocker.Mock()
-    fake_response = mocker.Mock(text="summary text")
+    fake_response = mocker.Mock(text="NEWSLETTER TITLE: A title\n\nCombined newsletter")
     fake_client.models.generate_content.return_value = fake_response
     mocker.patch("backend.output.get_gemini_client", return_value=fake_client)
 
     result = output.summariser("raw articles")
 
-    assert result == "summary text"
-    fake_client.models.generate_content.assert_called_once()
-
-
-def test_philosopher_success(mocker):
-    fake_client = mocker.Mock()
-    fake_response = mocker.Mock(text="NEWSLETTER TITLE: A title\n\nBody")
-    fake_client.models.generate_content.return_value = fake_response
-    mocker.patch("backend.output.get_gemini_client", return_value=fake_client)
-
-    result = output.philosopher("summary")
-
-    assert "NEWSLETTER TITLE:" in result
+    assert result == "NEWSLETTER TITLE: A title\n\nCombined newsletter"
     fake_client.models.generate_content.assert_called_once()
 
 

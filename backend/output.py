@@ -3,42 +3,37 @@ import json
 import re
 import os
 
+from pydantic import BaseModel
 from sqlalchemy import text
 
-from backend.model_utils import get_neon_client, get_openai_client, get_gemini_client
+from backend.model_utils import get_neon_client, get_gemini_client
 
-chat_model = "gpt-5-nano"
 chat_prompt = (
-    "There should be 2 news articles and 1 opinion piece. Summarise each article into roughly 1 paragraph (around 100-150 words). "
-    "Ensure that arguments are fully fleshed out along with any counterarguments. Do not add in your own opinions. Do not address me, simply give the summary. "
-    "Begin each article with the article's title wrapped in bold tags in the following format: <b>Article Title </b>. "
-    "For opinion articles, also include the publisher after the title in brackets, in the format: <b>Opinion: <Title> (<Publisher>) </b>"
-    )
-
-gemini_model = "gemini-2.5-flash"
-gemini_prompt = (
-    "There are summaries of 2 news articles and 1 opinion piece here. Do not edit the article summaries. "
-    "For each piece, have 1 relevant political philosopher or historian critically assess the developments mentioned in the article. "
-    "The philosopher or historian should have a different perspective on the developments mentioned in the article. "
-    "Do not edit the article summary, but add another paragraph about 200 words long at the end of the summary detailing what this philosopher or historian might say."
-    "Here are some things the philosopher/historian may do, drawing from his/her own theories: " 
-    "1. Comment on whether the observation/opinion is universal/generalisable. "
-    "2. Add a wrinkle or a qualifier to the development/opinion. "
-    "3. Identify a hidden risk, consequence or opportunity, drawing from his/her own frameworks. "
-    "4. Draw a parallel to an analogous situation in history, or reference a famous, relevant thought experiment. "
-    "5. Identify the hidden reason behind an observation, or assumption beneath an opinion."
-    "Avoid generic agreeements or disagreements when assessing the article. Novel insights must be drawn."
-    "At the end of each article and analysis, draw a horizontal line using <hr />."
-    "Begin each article with the article's title wrapped in bold tags in the following format: <b> Article Title </b>. Do NOT use markdown bolding like **Title**."
+    "There are 2 news articles and 1 opinion piece below. In one response, produce a newsletter that "
+    "summarises and philosophically critiques every piece. Begin each piece with its title wrapped in "
+    "<b> tags (for example, <b>Article Title</b>; for an opinion article include its publisher). Write a "
+    "100-150 word factual summary that fully presents the argument and counterarguments without adding your "
+    "own opinion. Immediately follow it with an approximately 200-word critical assessment from one relevant "
+    "political philosopher or historian; use a different perspective for each piece. Ground the assessment in "
+    "that thinker's ideas, identifying a hidden assumption, risk, opportunity, historical parallel, or useful "
+    "qualification. Avoid generic agreement or disagreement. End each piece with <hr />. "
     "Begin your entire response with one line in the exact "
     "form NEWSLETTER TITLE: <a concise 5-10 word title that captures the overarching theme of this issue>. "
     "Then leave one blank line and continue with the articles as instructed. Do not put any other text before this line."
 )
 
+gemini_model = "gemini-2.5-flash"
+
 def summariser(articles):
     client = get_gemini_client()
     if isinstance(articles, (dict, list)):
-        articles_text = json.dumps(articles, ensure_ascii=True)
+        articles_text = json.dumps(
+            articles,
+            ensure_ascii=True,
+            default=lambda value: value.model_dump(mode="json")
+            if isinstance(value, BaseModel)
+            else str(value),
+        )
     else:
         articles_text = str(articles)
     try:
@@ -48,19 +43,7 @@ def summariser(articles):
         )
         return response.text
     except Exception as e:
-        print(f"Unable to get summary: {e}")
-        return None
-
-def philosopher(response_text):
-    client = get_gemini_client()
-    try:
-        response = client.models.generate_content(
-            model=gemini_model,
-            contents=f"{gemini_prompt}\n\n{response_text}",
-        )
-        return response.text
-    except Exception as e:
-        print(f"Unable to get philosophy commentary: {e}")
+        print(f"Unable to generate newsletter: {e}")
         return None
 
 def parse_newsletter(text_value):
@@ -77,7 +60,7 @@ def parse_newsletter(text_value):
                 body_lines = body_lines[1:]
             return parsed_title or "Newsletter", "\n".join(body_lines).strip()
 
-    print("Warning: Missing NEWSLETTER TITLE marker in philosopher output.")
+    print("Warning: Missing NEWSLETTER TITLE marker in Gemini output.")
     return "Newsletter", text_value
 
 def to_database(title, content):

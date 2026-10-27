@@ -4,8 +4,7 @@ import backend.main as main
 
 
 def _patch_pipeline_internals(mocker):
-    mocker.patch("backend.main.summariser", return_value="summary")
-    mocker.patch("backend.main.philosopher", return_value="NEWSLETTER TITLE: Theme\n\nFinal body")
+    mocker.patch("backend.main.summariser", return_value="NEWSLETTER TITLE: Theme\n\nFinal body")
     mocker.patch("backend.main.parse_newsletter", return_value=("Theme", "Final body"))
 
 
@@ -13,7 +12,7 @@ def test_run_pipeline_prod_calls_all_side_effects(mocker):
     tinyfish_mock = mocker.patch("backend.main.get_tinyfish_news", return_value="articles")
     fixture_mock = mocker.patch("backend.main.load_fixture_articles", return_value={"news_articles": []})
     _patch_pipeline_internals(mocker)
-    to_database_mock = mocker.patch("backend.main.to_database", return_value=99)
+    cache_commentary_mock = mocker.patch("backend.main.cache_and_persist_commentary", return_value=99)
     send_emails_mock = mocker.patch("backend.main.send_emails", return_value={"sent": 2, "failed": []})
 
     result = main.run_pipeline("prod")
@@ -21,7 +20,7 @@ def test_run_pipeline_prod_calls_all_side_effects(mocker):
     expected_title = f"{date.today().isoformat()} - Theme"
     tinyfish_mock.assert_called_once()
     fixture_mock.assert_not_called()
-    to_database_mock.assert_called_once_with(expected_title, "Final body")
+    cache_commentary_mock.assert_called_once()
     send_emails_mock.assert_called_once_with(expected_title, "Final body")
     assert result == {
         "status": "ok",

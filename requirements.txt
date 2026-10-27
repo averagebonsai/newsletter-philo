@@ -7,4 +7,6 @@ requests
 resend
 pytest
 pytest-mock
+pydantic
+redis
 
